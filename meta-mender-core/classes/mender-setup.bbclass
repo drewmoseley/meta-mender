@@ -163,7 +163,7 @@ MENDER_UBOOT_POST_SETUP_COMMANDS_DEFAULT = ""
 # --------------------------- END OF CONFIGURATION -----------------------------
 
 IMAGE_INSTALL_append = " mender"
-IMAGE_CLASSES += "mender-part-images mender-ubimg mender-artifactimg mender-dataimg"
+IMAGE_CLASSES += "mender-part-images mender-ubimg mender-artifactimg mender-dataimg mender-bootimg"
 
 # Originally defined in bitbake.conf. We define them here so that images with
 # the same MACHINE name, but different MENDER_DEVICE_TYPE, will not result in
