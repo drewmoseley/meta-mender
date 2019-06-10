@@ -1,0 +1,83 @@
+From d965ed27b8b24cc5f7dbb906babe0b4cb29f3995 Mon Sep 17 00:00:00 2001
+From: Drew Moseley <drew.moseley@northern.tech>
+Date: Mon, 10 Jun 2019 20:08:31 +0000
+Subject: [PATCH] grub-mender-grubenv: Set static systemd machine-id
+
+Signed-off-by: Drew Moseley <drew.moseley@northern.tech>
+---
+ 05_mender_setup_grub.cfg       | 14 +++++++-------
+ 06_systemd_machine_id_grub.cfg |  3 +++
+ 10_bootargs_grub.cfg           |  2 +-
+ 3 files changed, 11 insertions(+), 8 deletions(-)
+ create mode 100644 06_systemd_machine_id_grub.cfg
+
+diff --git a/05_mender_setup_grub.cfg b/05_mender_setup_grub.cfg
+index 0295fe6..d3af32b 100644
+--- a/05_mender_setup_grub.cfg
++++ b/05_mender_setup_grub.cfg
+@@ -19,8 +19,8 @@ MENDER_LOCKSUM2=${prefix}/mender_grubenv2/lock.sha256sum
+ 
+ function mender_check_and_restore_env {
+     if ! hashsum --hash sha256 --prefix ${MENDER_ENVPREFIX2} --check ${MENDER_LOCKSUM2}; then
+-        load_env --skip-sig --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available
+-        save_env --file ${MENDER_ENV2} bootcount mender_boot_part upgrade_available
++        load_env --skip-sig --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
++        save_env --file ${MENDER_ENV2} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
+         editing=0
+         save_env --file ${MENDER_LOCK2} editing
+         if ! hashsum --hash sha256 --prefix ${MENDER_ENVPREFIX2} --check ${MENDER_LOCKSUM2}; then
+@@ -28,8 +28,8 @@ function mender_check_and_restore_env {
+             halt
+         fi
+     elif ! hashsum --hash sha256 --prefix ${MENDER_ENVPREFIX1} --check ${MENDER_LOCKSUM1}; then
+-        load_env --skip-sig --file ${MENDER_ENV2} bootcount mender_boot_part upgrade_available
+-        save_env --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available
++        load_env --skip-sig --file ${MENDER_ENV2} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
++        save_env --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
+         editing=0
+         save_env --file ${MENDER_LOCK1} editing
+         if ! hashsum --hash sha256 --prefix ${MENDER_ENVPREFIX1} --check ${MENDER_LOCKSUM1}; then
+@@ -43,13 +43,13 @@ function mender_save_env {
+     # Save redundant environment.
+     editing=1
+     save_env --file ${MENDER_LOCK2} editing
+-    save_env --file ${MENDER_ENV2} bootcount mender_boot_part upgrade_available
++    save_env --file ${MENDER_ENV2} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
+     editing=0
+     save_env --file ${MENDER_LOCK2} editing
+ 
+     editing=1
+     save_env --file ${MENDER_LOCK1} editing
+-    save_env --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available
++    save_env --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
+     editing=0
+     save_env --file ${MENDER_LOCK1} editing
+ }
+@@ -77,7 +77,7 @@ mender_check_and_restore_env
+ # Skipping signatures?? Yes, because these values will change over time, so they
+ # cannot be signed. There is also no checksum facility that will work for
+ # changing values. Instead we check their content for validity.
+-load_env --skip-sig --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available
++load_env --skip-sig --file ${MENDER_ENV1} bootcount mender_boot_part upgrade_available mender_systemd_machine_id
+ 
+ if ! mender_check_grubenv_valid; then
+     if [ "${check_signatures}" == "enforce" ]; then
+diff --git a/06_systemd_machine_id_grub.cfg b/06_systemd_machine_id_grub.cfg
+new file mode 100644
+index 0000000..4bc7208
+--- /dev/null
++++ b/06_systemd_machine_id_grub.cfg
+@@ -0,0 +1,3 @@
++if test -n "${mender_systemd_machine_id}"; then
++   systemd_bootargs="systemd.machine_id=${mender_systemd_machine_id}"
++fi
+diff --git a/10_bootargs_grub.cfg b/10_bootargs_grub.cfg
+index e7c4799..31ee698 100644
+--- a/10_bootargs_grub.cfg
++++ b/10_bootargs_grub.cfg
+@@ -1 +1 @@
+-set bootargs="${bootargs} ${console_bootargs}"
++set bootargs="${bootargs} ${console_bootargs} ${systemd_bootargs}"
+-- 
+2.21.0
+

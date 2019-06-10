@@ -1,6 +1,7 @@
 inherit mender-helpers
 
-SRC_URI = "git://github.com/mendersoftware/grub-mender-grubenv;protocol=https;branch=master"
+SRC_URI = "git://github.com/mendersoftware/grub-mender-grubenv;protocol=https;branch=master \
+                           file://0001-grub-mender-grubenv-Set-static-systemd-machine-id.patch"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
