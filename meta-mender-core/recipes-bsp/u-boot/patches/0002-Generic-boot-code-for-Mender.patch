@@ -1,4 +1,4 @@
-From bb97d7a53880e26c7016cc501bffcd4849f77f3c Mon Sep 17 00:00:00 2001
+From 938aa9d2abe25ec67a571a64d72938f642c16db3 Mon Sep 17 00:00:00 2001
 From: Drew Moseley <drew.moseley@northern.tech>
 Date: Wed, 20 Dec 2017 09:53:16 -0500
 Subject: [PATCH] Generic boot code for Mender.
@@ -7,9 +7,9 @@ Signed-off-by: Kristian Amlie <kristian.amlie@mender.io>
 Signed-off-by: Maciej Borzecki <maciej.borzecki@rndity.com>
 Signed-off-by: Drew Moseley <drew.moseley@northern.tech>
 ---
- include/config_mender.h |  83 +++++++++++++++++++++++++++
- include/env_mender.h    | 124 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 207 insertions(+)
+ include/config_mender.h |  83 ++++++++++++++++++++++++++
+ include/env_mender.h    | 129 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 212 insertions(+)
  create mode 100644 include/config_mender.h
  create mode 100644 include/env_mender.h
 
@@ -104,10 +104,10 @@ index 0000000000..63a32a6f26
 +#endif /* HEADER_CONFIG_MENDER_H */
 diff --git a/include/env_mender.h b/include/env_mender.h
 new file mode 100644
-index 0000000000..d8690a350d
+index 0000000000..96910ee86f
 --- /dev/null
 +++ b/include/env_mender.h
-@@ -0,0 +1,124 @@
+@@ -0,0 +1,129 @@
 +/*
 +  Copyright 2017 Northern.tech AS
 +
@@ -183,6 +183,11 @@ index 0000000000..d8690a350d
 +    "then "                                                             \
 +    "run mender_pre_setup_commands; "                                   \
 +    "fi; "                                                              \
++    "if test \"${mender_systemd_machine_id}\" != \"\"; "                \
++    "then "                                                             \
++    "setenv bootargs systemd.machine_id=${mender_systemd_machine_id} "  \
++    "${bootargs}; "                                                     \
++    "fi; "                                                              \
 +    "setenv mender_kernel_root " MENDER_STORAGE_DEVICE_BASE "${mender_boot_part}; "    \
 +    "if test ${mender_boot_part} = " __stringify(MENDER_ROOTFS_PART_A_NUMBER) "; "     \
 +    "then "                                                                            \
@@ -233,5 +238,5 @@ index 0000000000..d8690a350d
 +
 +#endif /* HEADER_ENV_MENDER_H */
 -- 
-2.21.0
+2.22.1
 
